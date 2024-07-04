@@ -1,6 +1,8 @@
 import express from 'express';
 import { expressMiddleware } from '@apollo/server/express4';
 import createGraphqlServer from './graphql/index.js';
+import { decodeJWTToken } from './services/user.js';
+import jwt from 'jsonwebtoken'
 
 const main = async () => {
   const app = express();
@@ -11,7 +13,18 @@ const main = async () => {
     res.json({ message: 'Server is up and running' });
   });
 
-  app.use('/graphql', expressMiddleware(await createGraphqlServer()));
+  app.use('/graphql', expressMiddleware(await createGraphqlServer(), {
+    context: async ({req}) => {
+        // @ts-ignore
+        const token = req.headers.authorization || ''
+        try {
+          const user = decodeJWTToken(token)
+          return {user}
+        } catch (error) {
+          return {}
+        }
+    }
+  }));
 
   const PORT = Number(process.env.port) || 8000;
 
