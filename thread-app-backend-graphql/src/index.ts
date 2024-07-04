@@ -1,6 +1,5 @@
 import { expressMiddleware } from '@apollo/server/express4';
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import createGraphqlServer from './graphql/index.js';
 import { decodeJWTToken } from './services/user.js';
 
