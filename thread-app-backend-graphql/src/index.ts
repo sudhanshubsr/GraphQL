@@ -1,30 +1,32 @@
-import express from 'express';
 import { expressMiddleware } from '@apollo/server/express4';
+import express from 'express';
+import jwt from 'jsonwebtoken';
 import createGraphqlServer from './graphql/index.js';
 import { decodeJWTToken } from './services/user.js';
-import jwt from 'jsonwebtoken'
 
 const main = async () => {
   const app = express();
   app.use(express.json());
 
-
   app.get('/', (req, res) => {
     res.json({ message: 'Server is up and running' });
   });
 
-  app.use('/graphql', expressMiddleware(await createGraphqlServer(), {
-    context: async ({req}) => {
+  app.use(
+    '/graphql',
+    expressMiddleware(await createGraphqlServer(), {
+      context: async ({ req }) => {
         // @ts-ignore
-        const token = req.headers.authorization || ''
+        const token = req.headers.authorization || '';
         try {
-          const user = decodeJWTToken(token)
-          return {user}
+          const user = decodeJWTToken(token);
+          return { user };
         } catch (error) {
-          return {}
+          return {};
         }
-    }
-  }));
+      },
+    })
+  );
 
   const PORT = Number(process.env.port) || 8000;
 
